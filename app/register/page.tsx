@@ -10,6 +10,8 @@ import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import BackHomeButton from "@/components/BackHomeButton";
+import { useRouter } from "next/navigation";
+import ErrorMessage from "@/components/ErrorMessage";
 
 const formSchema = z
   .object({
@@ -45,6 +47,7 @@ type FormSchema = z.infer<typeof formSchema>;
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const router = useRouter();
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -59,13 +62,43 @@ const RegisterPage = () => {
     },
   });
 
-  const onSubmit = (values: FormSchema) => {
-    console.log("hello world")
-    console.log(values);
+  const { formState } = form;
+
+  const onSubmit = async (values: FormSchema) => {
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstName: values.firstName,
+          lastName: values.lastName,
+          username: values.username,
+          email: values.email,
+          phone: values.phone,
+          password: values.password,
+          role: values.role,
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message);
+      }
+
+      router.push("/login");
+      return;
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        form.setError("root", { message: error.message });
+      }
+    }
   };
 
   return (
-    <div className="p-6 grid justify-center lg:py-20">
+    <div className='p-6 grid justify-center lg:py-20'>
       <BackHomeButton />
       <Card className='max-w-5xl'>
         <CardHeader>
@@ -78,8 +111,8 @@ const RegisterPage = () => {
               onSubmit={form.handleSubmit(onSubmit)}
               className='grid md:grid-cols-2 gap-x-6 gap-y-4'
             >
-              <section className="grid gap-y-4">
-                <section className="grid grid-cols-2 gap-x-4">
+              <section className='grid gap-y-4'>
+                <section className='grid grid-cols-2 gap-x-4'>
                   <FormField
                     control={form.control}
                     name='firstName'
@@ -89,6 +122,7 @@ const RegisterPage = () => {
                         <FormControl>
                           <Input
                             placeholder='Your first name'
+                            disabled={formState.isSubmitting}
                             {...field}
                           />
                         </FormControl>
@@ -105,6 +139,7 @@ const RegisterPage = () => {
                         <FormControl>
                           <Input
                             placeholder='Your last name'
+                            disabled={formState.isSubmitting}
                             {...field}
                           />
                         </FormControl>
@@ -122,6 +157,7 @@ const RegisterPage = () => {
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
+                        disabled={formState.isSubmitting}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -146,6 +182,7 @@ const RegisterPage = () => {
                       <FormControl>
                         <Input
                           placeholder='Your username'
+                          disabled={formState.isSubmitting}
                           {...field}
                         />
                       </FormControl>
@@ -163,6 +200,7 @@ const RegisterPage = () => {
                         <Input
                           type='email'
                           placeholder='Your current email'
+                          disabled={formState.isSubmitting}
                           {...field}
                         />
                       </FormControl>
@@ -171,7 +209,7 @@ const RegisterPage = () => {
                   )}
                 />
               </section>
-              <section className="grid gap-y-4">
+              <section className='grid gap-y-4'>
                 <FormField
                   control={form.control}
                   name='phone'
@@ -181,6 +219,7 @@ const RegisterPage = () => {
                       <FormControl>
                         <Input
                           placeholder='Your current phone number'
+                          disabled={formState.isSubmitting}
                           {...field}
                         />
                       </FormControl>
@@ -198,6 +237,7 @@ const RegisterPage = () => {
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder='Your password'
+                          disabled={formState.isSubmitting}
                           {...field}
                         />
                       </FormControl>
@@ -215,6 +255,7 @@ const RegisterPage = () => {
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder='Your confirm password'
+                          disabled={formState.isSubmitting}
                           {...field}
                         />
                       </FormControl>
@@ -227,10 +268,17 @@ const RegisterPage = () => {
                     id='showPassword'
                     checked={showPassword}
                     onCheckedChange={(e) => setShowPassword(!showPassword)}
+                    disabled={formState.isSubmitting}
                   />
                   <FormLabel htmlFor='showPassword'>Show password</FormLabel>
                 </div>
-                <Button type='submit'>Register</Button>
+                {formState.errors.root && <ErrorMessage>{formState.errors.root.message}</ErrorMessage>}
+                <Button
+                  type='submit'
+                  disabled={formState.isSubmitting}
+                >
+                  Register
+                </Button>
               </section>
             </form>
           </Form>
