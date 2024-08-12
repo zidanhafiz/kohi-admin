@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
 
 const formSchema = z.object({
   username: z.string().min(5, {
@@ -46,6 +47,7 @@ export default function Home() {
           />
         </TabsContent>
       </Tabs>
+      <Link href='/register' className="w-fit block my-4 mx-auto text-center text-sm text-neutral-500">Create new account</Link>
     </main>
   );
 }
