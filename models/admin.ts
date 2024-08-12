@@ -78,11 +78,12 @@ const getAdminByEmail = async (email: string) => {
   }
 };
 
-const getAdminByUsername = async (username: string) => {
+const getAdminByUsername = async (username: string, role: "ADMIN" | "CASHIER") => {
   try {
     const admin = await prisma.admin.findUnique({
       where: {
         username,
+        role
       },
     });
 

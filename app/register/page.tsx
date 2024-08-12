@@ -6,7 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import BackHomeButton from "@/components/BackHomeButton";
@@ -36,7 +36,7 @@ const formSchema = z
     confirmPassword: z.string().min(8, {
       message: "Confirm password must be at least 8 characters.",
     }),
-    role: z.enum(["cashier", "admin"]),
+    role: z.enum(["CASHIER", "ADMIN"]),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Password and confirm password must be the same.",
@@ -58,7 +58,7 @@ const RegisterPage = () => {
       phone: "",
       password: "",
       confirmPassword: "",
-      role: "cashier",
+      role: "CASHIER",
     },
   });
 
@@ -87,13 +87,15 @@ const RegisterPage = () => {
         throw new Error(error.message);
       }
 
-      router.push("/login");
+      form.clearErrors();
       return;
     } catch (error) {
       if (error instanceof Error) {
         console.error(error.message);
         form.setError("root", { message: error.message });
+        return;
       }
+      form.setError("root", { message: "Error occured while creating admin" });
     }
   };
 
@@ -165,8 +167,8 @@ const RegisterPage = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value='cashier'>Cashier</SelectItem>
-                          <SelectItem value='admin'>Admin</SelectItem>
+                          <SelectItem value='CASHIER'>Cashier</SelectItem>
+                          <SelectItem value='ADMIN'>Admin</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -272,18 +274,44 @@ const RegisterPage = () => {
                   />
                   <FormLabel htmlFor='showPassword'>Show password</FormLabel>
                 </div>
+                {formState.isSubmitSuccessful && <TimerRedirect />}
                 {formState.errors.root && <ErrorMessage>{formState.errors.root.message}</ErrorMessage>}
                 <Button
                   type='submit'
                   disabled={formState.isSubmitting}
                 >
-                  Register
+                  {formState.isSubmitting ? "Loading" : "Register"}
                 </Button>
               </section>
             </form>
           </Form>
         </CardContent>
       </Card>
+    </div>
+  );
+};
+
+const TimerRedirect = () => {
+  const [time, setTime] = useState<number>(5);
+  const router = useRouter();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (time === 0) {
+    router.push("/");
+    return;
+  }
+
+  return (
+    <div className='font-medium text-center text-sm w-full'>
+      <p className='text-green-500'>Success created account.</p>
+      <p className='text-neutral-500'>Automatically redirect in {time}s</p>
     </div>
   );
 };

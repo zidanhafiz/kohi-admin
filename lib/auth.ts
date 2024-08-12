@@ -1,5 +1,7 @@
+"use server";
 import { JWTPayload, SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 
 const secretKey = process.env.SECRET_KEY;
@@ -9,6 +11,7 @@ type SessionPayload = {
   id: string;
   firstName: string;
   username: string;
+  role: string;
   expires: Date;
 };
 
@@ -21,6 +24,14 @@ export const decrypt = async (session: string): Promise<JWTPayload & SessionPayl
     algorithms: ["HS256"],
   });
   return payload as JWTPayload & SessionPayload;
+};
+
+export const logoutSession = async () => {
+  cookies().set("session", "", {
+    httpOnly: true,
+    expires: new Date(0),
+  });
+  redirect("/");
 };
 
 export const getSession = async () => {

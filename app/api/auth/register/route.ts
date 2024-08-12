@@ -8,25 +8,25 @@ export const POST = async (req: NextRequest) => {
     const { firstName, lastName, username, phone, email, password, role } = body;
 
     if (!firstName || !lastName || !username || !phone || !email || !password || !role) {
-      return NextResponse.json({ message: "All fields are required" }, { status: 400 });
+      return NextResponse.json({ message: "All fields are required!" }, { status: 400 });
     }
 
     const isEmailExist = await adminModels.getAdminByEmail(email);
 
     if (isEmailExist) {
-      return NextResponse.json({ message: "Email already exist" }, { status: 400 });
+      return NextResponse.json({ message: "Email already exist!" }, { status: 400 });
     }
 
-    const isUsernameExist = await adminModels.getAdminByUsername(username);
+    const isUsernameExist = await adminModels.getAdminByUsername(username, role);
 
     if (isUsernameExist) {
-      return NextResponse.json({ message: "Username already exist" }, { status: 400 });
+      return NextResponse.json({ message: "Username already exist!" }, { status: 400 });
     }
 
     const isPhoneExist = await adminModels.getAdminByPhone(phone);
 
     if (isPhoneExist) {
-      return NextResponse.json({ message: "Phone already exist" }, { status: 400 });
+      return NextResponse.json({ message: "Phone already exist!" }, { status: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -38,7 +38,7 @@ export const POST = async (req: NextRequest) => {
       phone,
       email,
       password: hashedPassword,
-      role: role.toUpperCase(),
+      role,
     });
 
     return NextResponse.json(
@@ -48,7 +48,7 @@ export const POST = async (req: NextRequest) => {
   } catch (error) {
     console.error(error);
     if (error instanceof Error) {
-      return NextResponse.json({ message: "hello buddy" }, { status: 400 });
+      return NextResponse.json({ message: error.message }, { status: 400 });
     }
     return NextResponse.json({ message: "Error occured while creating admin" }, { status: 400 });
   }
