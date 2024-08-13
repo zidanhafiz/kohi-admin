@@ -6,4 +6,5 @@ export type Admin = {
   email: string;
   password: string;
   role?: "ADMIN" | "CASHIER";
+  isActive?: boolean;
 };

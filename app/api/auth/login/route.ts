@@ -25,6 +25,8 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ message: "Invalid password!" }, { status: 401 });
     }
 
+    await adminModels.updateIsActiveByUsername(username, true);
+
     const { id, firstName } = admin;
 
     const expires = new Date(Date.now() + 1000 * 60 * 60 * 10);

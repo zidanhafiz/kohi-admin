@@ -119,6 +119,30 @@ const getAdminByPhone = async (phone: string) => {
   }
 };
 
+const updateIsActiveByUsername = async (username: string, isActive: boolean) => {
+  try {
+    const admin = await prisma.admin.update({
+      where: {
+        username,
+      },
+      data: {
+        isActive,
+      }
+    });
+
+    return admin;
+  } catch (error) {
+    console.error(error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An error occured while fetching admin");
+  } finally {
+    await prisma.$disconnect();
+  }
+
+}
+
 const adminModels = {
   createAdmin,
   getAllAdmins,
@@ -126,6 +150,7 @@ const adminModels = {
   getAdminByEmail,
   getAdminByUsername,
   getAdminByPhone,
+  updateIsActiveByUsername,
 };
 
 export default adminModels;
