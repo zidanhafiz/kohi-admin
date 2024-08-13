@@ -9,6 +9,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import ErrorMessage from "@/components/ErrorMessage";
 
 const formSchema = z.object({
   username: z.string().min(5, {
@@ -17,7 +20,7 @@ const formSchema = z.object({
   password: z.string().min(8, {
     message: "Password must be at least 8 characters.",
   }),
-  role: z.enum(["cashier", "admin"]),
+  role: z.enum(["CASHIER", "ADMIN"]),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
@@ -46,24 +49,55 @@ export default function Home() {
           />
         </TabsContent>
       </Tabs>
+      <Link
+        href='/register'
+        className='w-fit block my-4 mx-auto text-center text-sm text-neutral-500'
+      >
+        Create new account
+      </Link>
     </main>
   );
 }
 
 const FormCard = ({ title, desc }: { title: string; desc: string }) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const router = useRouter();
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
       password: "",
-      role: title === "Cashier" ? "cashier" : "admin",
+      role: title === "Admin" ? "ADMIN" : "CASHIER",
     },
   });
 
-  const onSubmit = (values: FormSchema) => {
-    console.log(values);
+  const { formState } = form;
+
+  const onSubmit = async (values: FormSchema) => {
+    const res = await fetch(`/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      console.error(error.message);
+      form.setError("root", {
+        message: error.message,
+      });
+      return;
+    }
+
+    form.clearErrors();
+    const data = await res.json();
+    const { role } = data.data;
+    router.push(`/${role.toLowerCase()}`);
+    return;
   };
+
   return (
     <Card>
       <CardHeader>
@@ -85,6 +119,7 @@ const FormCard = ({ title, desc }: { title: string; desc: string }) => {
                   <FormControl>
                     <Input
                       placeholder='Your username'
+                      disabled={formState.isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -102,6 +137,7 @@ const FormCard = ({ title, desc }: { title: string; desc: string }) => {
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder='Your password'
+                      disabled={formState.isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -113,7 +149,8 @@ const FormCard = ({ title, desc }: { title: string; desc: string }) => {
               <Checkbox
                 id='terms'
                 checked={showPassword}
-                onCheckedChange={(e) => setShowPassword(!showPassword)}
+                onCheckedChange={() => setShowPassword(!showPassword)}
+                disabled={formState.isSubmitting}
               />
               <label
                 htmlFor='terms'
@@ -122,7 +159,14 @@ const FormCard = ({ title, desc }: { title: string; desc: string }) => {
                 Show Password
               </label>
             </div>
-            <Button type='submit'>Login</Button>
+            {formState.isSubmitSuccessful && <p className='text-green-500 text-sm w-full text-center'>Success Login!</p>}
+            {formState.errors.root && <ErrorMessage>{formState.errors.root.message}</ErrorMessage>}
+            <Button
+              type='submit'
+              disabled={formState.isSubmitting}
+            >
+              Login
+            </Button>
           </form>
         </Form>
       </CardContent>
