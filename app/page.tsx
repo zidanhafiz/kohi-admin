@@ -10,8 +10,8 @@ import { z } from "zod";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import ErrorMessage from "@/components/ErrorMessage";
+import { useSession } from "@/components/SessionProvider";
 
 const formSchema = z.object({
   username: z.string().min(5, {
@@ -61,7 +61,7 @@ export default function Home() {
 
 const FormCard = ({ title, desc }: { title: string; desc: string }) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const router = useRouter();
+  const { loginSession } = useSession();
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -74,6 +74,7 @@ const FormCard = ({ title, desc }: { title: string; desc: string }) => {
   const { formState } = form;
 
   const onSubmit = async (values: FormSchema) => {
+    if (formState.isSubmitting || formState.isSubmitSuccessful) return;
     const res = await fetch(`/api/auth/login`, {
       method: "POST",
       headers: {
@@ -92,10 +93,7 @@ const FormCard = ({ title, desc }: { title: string; desc: string }) => {
     }
 
     form.clearErrors();
-    const data = await res.json();
-    const { role } = data.data;
-    router.push(`/${role.toLowerCase()}`);
-    return;
+    await loginSession();
   };
 
   return (

@@ -47,7 +47,6 @@ type FormSchema = z.infer<typeof formSchema>;
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const router = useRouter();
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -65,6 +64,7 @@ const RegisterPage = () => {
   const { formState } = form;
 
   const onSubmit = async (values: FormSchema) => {
+    if (formState.isSubmitting || formState.isSubmitSuccessful) return;
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",

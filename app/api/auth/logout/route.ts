@@ -13,10 +13,7 @@ export const POST = async (req: NextRequest) => {
 
     await adminModels.updateIsActiveByUsername(username, false);
 
-    cookies().set("session", "", {
-      httpOnly: true,
-      expires: new Date(0),
-    });
+    cookies().delete("session");
 
     return NextResponse.json({ message: "Logout success" }, { status: 201 });
   } catch (error) {
