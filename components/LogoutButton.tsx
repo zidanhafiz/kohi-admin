@@ -11,20 +11,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { getSession } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { SessionPayload } from "@/types/session";
 import { LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSession } from "./SessionProvider";
 
 const LogoutButton = ({ className }: { className?: string }) => {
-  const [session, setSession] = useState<SessionPayload | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    getSession().then((session) => setSession(session));
-  }, []);
+  const { session, logoutSession } = useSession();
 
   const handleLogout = async () => {
     if (!session) return;
@@ -47,7 +39,7 @@ const LogoutButton = ({ className }: { className?: string }) => {
       return;
     }
 
-    router.push("/");
+    logoutSession();
   };
 
   return (
