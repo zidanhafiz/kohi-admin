@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import adminModels from "@/models/admin";
-import bcrypt from "bcrypt";
+import { hashPassword } from "@/lib/auth";
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -29,7 +29,7 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ message: "Phone already exist!" }, { status: 400 });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hashPassword(password);
 
     const admin = await adminModels.createAdmin({
       firstName,

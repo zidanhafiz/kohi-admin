@@ -8,44 +8,36 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getSession } from "@/lib/auth";
-import { useEffect, useState } from "react";
-import { SessionPayload } from "@/types/session";
-import { CircleHelp, Settings, User } from "lucide-react";
-import { redirect, useRouter } from "next/navigation";
+import { CircleHelp, Settings } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useSession } from "./SessionProvider";
 
 const DropdownAvatar = () => {
-  const [session, setSession] = useState<SessionPayload | null>(null);
+  const { session } = useSession();
   const router = useRouter();
-
-  useEffect(() => {
-    getSession().then((session) => setSession(session));
-  }, []);
-
-  if (!session) return null;
-
+  const role = session?.user.role.toLowerCase();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Avatar>
           <AvatarImage src='https://github.com/shadcn.png' />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarFallback>AV</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuLabel>{session.username}</DropdownMenuLabel>
+        <DropdownMenuLabel>{session?.user.username}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className='flex items-center gap-2'
-          onClick={() => router.push(`/${session.role}/help`)}
+          onClick={() => router.push(`/${role}/help`)}
         >
           <CircleHelp size={16} />
           Help
         </DropdownMenuItem>
         <DropdownMenuItem
           className='flex items-center gap-2'
-          onClick={() => router.push(`/${session.role}/settings`)}
+          onClick={() => router.push(`/${role}/settings`)}
         >
           <Settings size={16} />
           Settings

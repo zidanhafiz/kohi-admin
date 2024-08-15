@@ -16,10 +16,10 @@ const CashierLayout = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <div className={cn(isMobile ? "" : "grid grid-cols-[auto,1fr]")}>
-      <Navbar isMobile={isMobile} />
-      <div className="bg-neutral-50">{children}</div>
-    </div>
+      <div className={cn(isMobile ? "" : "grid grid-cols-[auto,1fr]")}>
+        <Navbar isMobile={isMobile} />
+        <div className='bg-neutral-50'>{children}</div>
+      </div>
   );
 };
 

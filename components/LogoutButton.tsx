@@ -1,4 +1,5 @@
 "use client";
+import { logout } from "@/actions/auth";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,45 +12,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { getSession } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { SessionPayload } from "@/types/session";
 import { LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
 const LogoutButton = ({ className }: { className?: string }) => {
-  const [session, setSession] = useState<SessionPayload | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    getSession().then((session) => setSession(session));
-  }, []);
-
-  const handleLogout = async () => {
-    if (!session) return;
-
-    const res = await fetch("/api/auth/logout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: session.username,
-        role: session.role,
-      }),
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      console.error(error.message);
-      alert("Logout failed");
-      return;
-    }
-
-    router.push("/");
-  };
-
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -68,12 +34,14 @@ const LogoutButton = ({ className }: { className?: string }) => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            className='bg-red-500 text-primary-foreground hover:bg-red-400 transition-colors'
-            onClick={handleLogout}
-          >
-            Logout
-          </AlertDialogAction>
+          <form action={logout}>
+            <AlertDialogAction
+              className='bg-red-500 text-primary-foreground hover:bg-red-400 transition-colors w-full'
+              type='submit'
+            >
+              Logout
+            </AlertDialogAction>
+          </form>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
