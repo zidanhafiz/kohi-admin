@@ -1,4 +1,5 @@
 "use client";
+import { logout } from "@/actions/auth";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,35 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LogOut } from "lucide-react";
-import { useSession } from "./SessionProvider";
 
 const LogoutButton = ({ className }: { className?: string }) => {
-  const { session, logoutSession } = useSession();
-
-  const handleLogout = async () => {
-    if (!session) return;
-
-    const res = await fetch("/api/auth/logout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: session.username,
-        role: session.role,
-      }),
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      console.error(error.message);
-      alert("Logout failed");
-      return;
-    }
-
-    logoutSession();
-  };
-
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -60,12 +34,14 @@ const LogoutButton = ({ className }: { className?: string }) => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            className='bg-red-500 text-primary-foreground hover:bg-red-400 transition-colors'
-            onClick={handleLogout}
-          >
-            Logout
-          </AlertDialogAction>
+          <form action={logout}>
+            <AlertDialogAction
+              className='bg-red-500 text-primary-foreground hover:bg-red-400 transition-colors w-full'
+              type='submit'
+            >
+              Logout
+            </AlertDialogAction>
+          </form>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

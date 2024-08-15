@@ -1,50 +1,15 @@
 "use client";
-import { getSession } from "@/lib/auth";
-import { SessionPayload } from "@/types/session";
-import { useRouter } from "next/navigation";
-import { createContext, useState, useContext, ReactNode, useEffect } from "react";
+import { Session } from "next-auth";
+import { createContext, useContext, ReactNode } from "react";
 
 type SessionContextType = {
-  session: SessionPayload | null;
-  setSession: (session: SessionPayload) => void;
-  loginSession: () => Promise<void>;
-  logoutSession: () => void;
+  session: Session | null;
 };
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
-const SessionProvider = ({ children }: { children: ReactNode }) => {
-  const [session, setSession] = useState<SessionPayload | null>(null);
-  const router = useRouter();
-
-  const loginSession = async () => {
-    const ses = await getSession();
-    setSession(ses);
-  };
-
-  const logoutSession = () => {
-    setSession(null);
-  };
-
-  useEffect(() => {
-    getSession().then((ses) => {
-      setSession(ses);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (session) {
-      if (session.role === "CASHIER") {
-        router.push("/cashier");
-        return;
-      }
-      router.push("/admin");
-      return;
-    }
-    router.refresh();
-  }, [session, router])
-
-  return <SessionContext.Provider value={{ session, setSession, loginSession, logoutSession }}>{children}</SessionContext.Provider>;
+const SessionProvider = ({ children, session }: { children: ReactNode, session: Session | null }) => {
+  return <SessionContext.Provider value={{ session }}>{children}</SessionContext.Provider>;
 };
 
 const useSession = () => {

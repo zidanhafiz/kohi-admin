@@ -1,29 +1,6 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import LoginFormCard from "@/components/LoginFormCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
-import ErrorMessage from "@/components/ErrorMessage";
-import { useSession } from "@/components/SessionProvider";
-
-const formSchema = z.object({
-  username: z.string().min(5, {
-    message: "Username must be at least 5 characters.",
-  }),
-  password: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
-  }),
-  role: z.enum(["CASHIER", "ADMIN"]),
-});
-
-type FormSchema = z.infer<typeof formSchema>;
 
 export default function Home() {
   return (
@@ -37,13 +14,13 @@ export default function Home() {
           <TabsTrigger value='admin'>Admin</TabsTrigger>
         </TabsList>
         <TabsContent value='cashier'>
-          <FormCard
+          <LoginFormCard
             title='Cashier'
             desc='Login to Cashier Page'
           />
         </TabsContent>
         <TabsContent value='admin'>
-          <FormCard
+          <LoginFormCard
             title='Admin'
             desc='Login to Admin Page'
           />
@@ -58,117 +35,3 @@ export default function Home() {
     </main>
   );
 }
-
-const FormCard = ({ title, desc }: { title: string; desc: string }) => {
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const { loginSession } = useSession();
-  const form = useForm<FormSchema>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-      role: title === "Admin" ? "ADMIN" : "CASHIER",
-    },
-  });
-
-  const { formState } = form;
-
-  const onSubmit = async (values: FormSchema) => {
-    if (formState.isSubmitting || formState.isSubmitSuccessful) return;
-    const res = await fetch(`/api/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      console.error(error.message);
-      form.setError("root", {
-        message: error.message,
-      });
-      return;
-    }
-
-    form.clearErrors();
-    await loginSession();
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{desc}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className='grid gap-y-6'
-          >
-            <FormField
-              control={form.control}
-              name='username'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder='Your username'
-                      disabled={formState.isSubmitting}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='password'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      placeholder='Your password'
-                      disabled={formState.isSubmitting}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className='flex items-center gap-x-2 justify-end'>
-              <Checkbox
-                id='terms'
-                checked={showPassword}
-                onCheckedChange={() => setShowPassword(!showPassword)}
-                disabled={formState.isSubmitting}
-              />
-              <label
-                htmlFor='terms'
-                className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
-              >
-                Show Password
-              </label>
-            </div>
-            {formState.isSubmitSuccessful && <p className='text-green-500 text-sm w-full text-center'>Success Login!</p>}
-            {formState.errors.root && <ErrorMessage>{formState.errors.root.message}</ErrorMessage>}
-            <Button
-              type='submit'
-              disabled={formState.isSubmitting}
-            >
-              Login
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
-  );
-};
-

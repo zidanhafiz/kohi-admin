@@ -15,6 +15,7 @@ import { useSession } from "./SessionProvider";
 const DropdownAvatar = () => {
   const { session } = useSession();
   const router = useRouter();
+  const role = session?.user.role.toLowerCase();
 
   return (
     <DropdownMenu>
@@ -25,18 +26,18 @@ const DropdownAvatar = () => {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuLabel>{session?.username}</DropdownMenuLabel>
+        <DropdownMenuLabel>{session?.user.username}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className='flex items-center gap-2'
-          onClick={() => router.push(`/${session?.role}/help`)}
+          onClick={() => router.push(`/${role}/help`)}
         >
           <CircleHelp size={16} />
           Help
         </DropdownMenuItem>
         <DropdownMenuItem
           className='flex items-center gap-2'
-          onClick={() => router.push(`/${session?.role}/settings`)}
+          onClick={() => router.push(`/${role}/settings`)}
         >
           <Settings size={16} />
           Settings
