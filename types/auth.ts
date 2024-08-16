@@ -18,9 +18,9 @@ declare module "next-auth" {
   }
 
   interface User {
-    firstName?: string;
+    firstName: string;
     username: string;
-    password?: string;
+    password: string;
     role: "ADMIN" | "CASHIER";
   }
 }

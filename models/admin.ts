@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { Admin } from "@/types/admin";
+import { formatFullName } from "@/lib/utils";
+import { Admin } from "@prisma/client";
 
 const createAdmin = async (data: Admin) => {
   try {
@@ -24,9 +25,28 @@ const createAdmin = async (data: Admin) => {
 
 const getAllAdmins = async () => {
   try {
-    const admins = await prisma.admin.findMany();
+    const admins = await prisma.admin.findMany({
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        email: true,
+        username: true,
+        role: true,
+        isActive: true,
+        password: false
+      }
+    });
 
-    return admins;
+    const data = admins.map((admin) => {
+      return {
+        ...admin,
+        fullName: formatFullName(admin.firstName, admin.lastName),
+      };
+    });
+
+    return data;
   } catch (error) {
     console.error(error);
     if (error instanceof Error) {

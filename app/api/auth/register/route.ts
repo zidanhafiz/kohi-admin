@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import adminModels from "@/models/admin";
 import { hashPassword } from "@/lib/auth";
+import { Admin } from "@prisma/client";
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -31,7 +32,7 @@ export const POST = async (req: NextRequest) => {
 
     const hashedPassword = await hashPassword(password);
 
-    const admin = await adminModels.createAdmin({
+    const data = {
       firstName,
       lastName,
       username,
@@ -39,7 +40,9 @@ export const POST = async (req: NextRequest) => {
       email,
       password: hashedPassword,
       role,
-    });
+    } as Admin;
+
+    const admin = await adminModels.createAdmin(data);
 
     return NextResponse.json(
       { message: "Success created new Admin account", data: { id: admin.id, firstName: admin.firstName, lastName: admin.lastName } },

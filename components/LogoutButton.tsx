@@ -20,7 +20,7 @@ const LogoutButton = ({ className }: { className?: string }) => {
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
-          variant='destructive'
+          variant='secondary'
           className={cn("flex items-center gap-3", className)}
         >
           Logout

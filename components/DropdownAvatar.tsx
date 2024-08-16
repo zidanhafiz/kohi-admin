@@ -20,13 +20,13 @@ const DropdownAvatar = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <Avatar>
+        <Avatar className="md:w-12 md:h-12">
           <AvatarImage src='https://github.com/shadcn.png' />
           <AvatarFallback>AV</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuLabel>{session?.user.username}</DropdownMenuLabel>
+        <DropdownMenuLabel>{session?.user.username} ({session?.user.role.toLowerCase()})</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className='flex items-center gap-2'
