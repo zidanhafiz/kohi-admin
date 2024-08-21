@@ -35,8 +35,8 @@ const getAllAdmins = async () => {
         username: true,
         role: true,
         isActive: true,
-        password: false
-      }
+        password: false,
+      },
     });
 
     const data = admins.map((admin) => {
@@ -63,6 +63,19 @@ const getAdminById = async (id: string) => {
     const admin = await prisma.admin.findUnique({
       where: {
         id,
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        email: true,
+        username: true,
+        role: true,
+        isActive: true,
+        updatedAt: true,
+        createdAt: true,
+        password: false,
       },
     });
 
@@ -103,7 +116,7 @@ const getAdminByUsername = async (username: string, role: "ADMIN" | "CASHIER") =
     const admin = await prisma.admin.findUnique({
       where: {
         username,
-        role
+        role,
       },
     });
 
@@ -147,7 +160,7 @@ const updateIsActiveByUsername = async (username: string, isActive: boolean) => 
       },
       data: {
         isActive,
-      }
+      },
     });
 
     return admin;
@@ -160,8 +173,27 @@ const updateIsActiveByUsername = async (username: string, isActive: boolean) => 
   } finally {
     await prisma.$disconnect();
   }
+};
 
-}
+const deleteAdminById = async (id: string) => {
+  try {
+    const admin = await prisma.admin.delete({
+      where: {
+        id,
+      },
+    });
+
+    return admin;
+  } catch (error) {
+    console.error(error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("An error occured while deleting admin");
+  } finally {
+    await prisma.$disconnect();
+  }
+};
 
 const adminModels = {
   createAdmin,
@@ -171,6 +203,7 @@ const adminModels = {
   getAdminByUsername,
   getAdminByPhone,
   updateIsActiveByUsername,
+  deleteAdminById,
 };
 
 export default adminModels;

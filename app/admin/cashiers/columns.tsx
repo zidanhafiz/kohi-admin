@@ -14,24 +14,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Admin } from "@/types/admin";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 export const columns: ColumnDef<Admin>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label='Select all'
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label='Select row'
-      />
-    ),
+    id: "number",
+    header: "No",
+    cell: ({ row }) => <div>{row.index + 1}</div>,
     enableSorting: false,
   },
   {
@@ -118,9 +107,13 @@ export const columns: ColumnDef<Admin>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(admin.id ?? "")}>Copy admin ID</DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer" onClick={() => navigator.clipboard.writeText(admin.id ?? "")}>Copy admin ID</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
+            <DropdownMenuItem>
+              <Link className="cursor-pointer" href={`/admin/cashiers/${admin.id}`}>
+                View details
+              </Link>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

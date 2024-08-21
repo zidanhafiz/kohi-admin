@@ -1,5 +1,5 @@
 "use client";
-import { cn } from "@/lib/utils";
+import { cn, isPathnameMatch } from "@/lib/utils";
 import { Box, Calculator, History, House, PanelRightClose, PanelRightOpen, Settings, ShoppingCart, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -14,27 +14,27 @@ import { kaushan } from "@/lib/fonts";
 const cashierList = [
   {
     name: "Dashboard",
-    link: "/cashier",
+    link: "/",
     icon: <House size={20} />,
   },
   {
     name: "Point of Sale",
-    link: "/cashier/post",
+    link: "/post",
     icon: <Calculator size={20} />,
   },
   {
     name: "Orders",
-    link: "/cashier/orders",
+    link: "/orders",
     icon: <ShoppingCart size={20} />,
   },
   {
     name: "Products",
-    link: "/cashier/products",
+    link: "/products",
     icon: <Box size={20} />,
   },
   {
     name: "Settings",
-    link: "/cashier/settings",
+    link: "/settings",
     icon: <Settings size={20} />,
   },
 ];
@@ -42,27 +42,27 @@ const cashierList = [
 const adminList = [
   {
     name: "Dashboard",
-    link: "/admin",
+    link: "/",
     icon: <House size={20} />,
   },
   {
     name: "Cashiers",
-    link: "/admin/cashiers",
+    link: "/cashiers",
     icon: <Users size={20} />,
   },
   {
     name: "Products",
-    link: "/admin/products",
+    link: "/products",
     icon: <Box size={20} />,
   },
   {
     name: "Transactions",
-    link: "/admin/orders",
+    link: "/orders",
     icon: <History size={20} />,
   },
   {
     name: "Settings",
-    link: "/admin/settings",
+    link: "/settings",
     icon: <Settings size={20} />,
   },
 ];
@@ -72,11 +72,12 @@ const Navbar = ({ isMobile }: { isMobile: boolean }) => {
   const { session } = useSession();
   const pathname = usePathname();
 
-  const list = session?.user.role === "CASHIER" ? cashierList : adminList;
+  const role = session?.user.role.toLowerCase()
+  const list = role === "cashier" ? cashierList : adminList;
 
   if (!isMobile) {
     return (
-      <aside>
+      <aside className="hidden lg:block">
         <nav className={"border h-screen py-8 w-[250px] flex flex-col justify-between"}>
           <div>
             <Link
@@ -90,9 +91,9 @@ const Navbar = ({ isMobile }: { isMobile: boolean }) => {
               {list.map((item, i) => (
                 <li key={i}>
                   <Link
-                    href={item.link}
+                    href={`/${role}${item.link}`}
                     className={cn(
-                      pathname === item.link ? "bg-primary text-primary-foreground" : "hover:bg-secondary",
+                      isPathnameMatch(pathname, item.link, role ?? "cashier") ? "bg-primary text-primary-foreground" : "hover:bg-secondary",
                       "flex items-center gap-2 p-2 rounded-md transition-colors"
                     )}
                   >
@@ -111,7 +112,7 @@ const Navbar = ({ isMobile }: { isMobile: boolean }) => {
   }
 
   return (
-    <header className='fixed bg-primary-foreground w-full z-50'>
+    <header className='fixed bg-primary-foreground w-full z-50 lg:hidden'>
       <nav className='border py-3 pr-6 relative flex justify-between items-center'>
         <Button
           className='flex items-center gap-x-3 justify-self-end mx-3'
@@ -140,9 +141,9 @@ const Navbar = ({ isMobile }: { isMobile: boolean }) => {
               {list.map((item, i) => (
                 <li key={i}>
                   <Link
-                    href={item.link}
+                    href={`/${role}${item.link}`}
                     className={cn(
-                      pathname === item.link ? "bg-primary text-primary-foreground" : "hover:bg-secondary",
+                      isPathnameMatch(pathname, item.link, role ?? "cashier") ? "bg-primary text-primary-foreground" : "hover:bg-secondary",
                       "flex items-center gap-2 p-2 rounded-md transition-colors"
                     )}
                   >

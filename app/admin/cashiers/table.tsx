@@ -21,7 +21,7 @@ import { columns } from "./columns";
 import { Admin } from "@/types/admin";
 
 const listMap = {
-  select: "Select",
+  number: "Number",
   isActive: "Status",
   username: "Username",
   fullName: "Full Name",
